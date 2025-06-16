@@ -167,33 +167,40 @@ elif st.session_state.step == len(steps) + 2:
         st.session_state.step = 0
         st.session_state.data = {}
 
-# 📊 Leads Overview
+# 📊 Leads Overview (Admin Only)
 st.markdown("---")
-st.markdown("### 📊 Leads Overview")
+st.markdown("### 🔒 Admin Access")
 
-if pd.io.common.file_exists(DATA_FILE):
-    df = pd.read_csv(DATA_FILE)
+admin_password = st.text_input("Enter admin password to view leads dashboard:", type="password")
 
-    st.download_button(
-        label="📥 Download All Leads (CSV)",
-        data=df.to_csv(index=False),
-        file_name="connects_leads.csv",
-        mime="text/csv"
-    )
+if admin_password == "connects@ai2025":
+    if pd.io.common.file_exists(DATA_FILE):
+        df = pd.read_csv(DATA_FILE)
 
-    if not df.empty and "Interest" in df.columns:
-        chart = (
-            alt.Chart(df)
-            .mark_bar()
-            .encode(
-                x="Interest:N",
-                y="count()",
-                color="Interest:N",
-                tooltip=["Interest", "count()"]
-            )
-            .properties(width=500, height=300)
+        st.download_button(
+            label="📥 Download All Leads (CSV)",
+            data=df.to_csv(index=False),
+            file_name="connects_leads.csv",
+            mime="text/csv"
         )
-        st.altair_chart(chart)
+
+        if not df.empty and "Interest" in df.columns:
+            chart = (
+                alt.Chart(df)
+                .mark_bar()
+                .encode(
+                    x="Interest:N",
+                    y="count()",
+                    color="Interest:N",
+                    tooltip=["Interest", "count()"]
+                )
+                .properties(width=500, height=300)
+            )
+            st.altair_chart(chart)
+    else:
+        st.warning("No data available yet.")
+else:
+    st.info("Dashboard is restricted. Please enter the admin password to access this section.")
 
 # 🔻 Footer
 st.markdown("<hr><p class='footer' style='text-align:center;'>© 2025 Connects | Powered by Tempest AI</p>", unsafe_allow_html=True)
